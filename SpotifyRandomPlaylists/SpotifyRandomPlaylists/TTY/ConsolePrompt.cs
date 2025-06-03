@@ -1,18 +1,15 @@
 using System;
+using SpotifyAPI.Web;
+using SpotifyRandomPlaylists.Backend;
 using SpotifyRandomPlaylists.Shared;
 
 namespace SpotifyRandomPlaylists.TTY;
 
 public class ConsolePrompt
 {
-    private Playlist _playlist;
+    private readonly Playlist _playlist = new();
 
-    public ConsolePrompt()
-    {
-        _playlist = new Playlist();
-    }
-
-    public void Start()
+    public async Task Start()
     {
         // Take input params
         var nameInput = ValidateInput<string>("Enter playlist name: ");
@@ -35,10 +32,11 @@ public class ConsolePrompt
             _playlist.SongNumber = songNumInput;
         }
         
-        // TODO: Talk to Api and make playlist 
+        // Run built-in OAuth server. TODO: make the auth process BETTER.
+        await SpotifyAuth.Start();
     }
 
-    private T ValidateInput<T>(string promptText)
+    private static T ValidateInput<T>(string promptText)
     {
         bool validInput;
         T value;
@@ -95,7 +93,6 @@ public class ConsolePrompt
                         // we put zero to signify no input was made
                         value = (T)Convert.ChangeType(0, typeof(T));
                     }
-                    
                 }
                 else
                 {
@@ -106,7 +103,6 @@ public class ConsolePrompt
             {
                 validInput = false;
             }
-            
         } while (!validInput);
 
         return value;
