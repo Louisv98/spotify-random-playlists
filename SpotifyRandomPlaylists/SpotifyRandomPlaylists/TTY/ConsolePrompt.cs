@@ -9,7 +9,7 @@ public class ConsolePrompt
 {
     private readonly Playlist _playlist = new();
 
-    public async Task Start()
+    public void Start()
     {
         // Take input params
         var nameInput = ValidateInput<string>("Enter playlist name: ");
@@ -32,8 +32,13 @@ public class ConsolePrompt
             _playlist.SongNumber = songNumInput;
         }
         
-        // Run built-in OAuth server. TODO: make the auth process BETTER.
-        await SpotifyAuth.Start();
+        // TODO: Talk to api and create playlist
+    }
+
+    public void Login()
+    {
+        var spotifyAuth = new SpotifyAuth();
+        spotifyAuth.Login();
     }
 
     private static T ValidateInput<T>(string promptText)

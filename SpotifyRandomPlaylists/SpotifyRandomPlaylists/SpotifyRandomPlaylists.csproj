@@ -9,21 +9,19 @@
 
     <ItemGroup>
       <None Remove="Backend\client_id" />
-      <Content Include="Backend\client_id">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
     <ItemGroup>
         <None Remove="Backend\secret_id" />
-        <Content Include="Backend\secret_id">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="SpotifyAPI.Web" Version="7.2.1" />
       <PackageReference Include="SpotifyAPI.Web.Auth" Version="7.2.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AppData\AppData.csproj" />
     </ItemGroup>
 
 </Project>

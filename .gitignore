@@ -53,5 +53,4 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
-*client_id
-*secret_id
+SharedFiles/*

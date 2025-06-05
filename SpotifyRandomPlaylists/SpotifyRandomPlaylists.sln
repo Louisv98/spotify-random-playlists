@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotifyRandomPlaylists", "SpotifyRandomPlaylists\SpotifyRandomPlaylists.csproj", "{648EB303-6A55-4734-8EAF-A18CFAC50D02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OAuthManager", "OAuthManager\OAuthManager.csproj", "{07C0114F-6A89-4D01-ABA2-8CC96F76B6D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppData", "AppData\AppData.csproj", "{55CBBE5D-03A2-4BF5-A1BA-FD111586CE4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{648EB303-6A55-4734-8EAF-A18CFAC50D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{648EB303-6A55-4734-8EAF-A18CFAC50D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{648EB303-6A55-4734-8EAF-A18CFAC50D02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07C0114F-6A89-4D01-ABA2-8CC96F76B6D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07C0114F-6A89-4D01-ABA2-8CC96F76B6D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07C0114F-6A89-4D01-ABA2-8CC96F76B6D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07C0114F-6A89-4D01-ABA2-8CC96F76B6D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55CBBE5D-03A2-4BF5-A1BA-FD111586CE4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55CBBE5D-03A2-4BF5-A1BA-FD111586CE4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55CBBE5D-03A2-4BF5-A1BA-FD111586CE4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55CBBE5D-03A2-4BF5-A1BA-FD111586CE4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

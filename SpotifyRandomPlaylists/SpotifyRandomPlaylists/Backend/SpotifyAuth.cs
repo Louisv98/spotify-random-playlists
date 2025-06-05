@@ -1,9 +1,12 @@
 using System.Buffers.Text;
+using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
 using System.Security.Cryptography;
 using System.Text;
+using AppData;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
+using Swan.Formatters;
 
 namespace SpotifyRandomPlaylists.Backend;
 
@@ -16,58 +19,87 @@ namespace SpotifyRandomPlaylists.Backend;
 ///
 /// Taken from https://johnnycrazy.github.io/SpotifyAPI-NET/docs/authorization_code
 /// </summary>
-public static class SpotifyAuth
+public class SpotifyAuth
 {
-    private static EmbedIOAuthServer _server;
-    
-    private const string RedirectUri = "http://127.0.0.1:5543/callback";
-    
-    private static string GetClientIdFromFile()
+    private readonly AppDataManager _appDataManager;
+
+    public SpotifyAuth()
     {
-        using var sr = new StreamReader("Backend/client_id");
-        return sr.ReadToEnd();
+        var solutionRootDir = GetSolutionRootPath();
+        _appDataManager = new AppDataManager(solutionRootDir);
     }
 
-    private static string GetSecretIdFromFile()
+    public void Login()
     {
-        using var sr = new StreamReader("Backend/secret_id");
-        return sr.ReadToEnd();
-    }
-
-    public static async Task Start()
-    {
-        // Make sure "http://localhost:5543/callback" is in your spotify application as redirect uri!
-        _server = new EmbedIOAuthServer(new Uri(RedirectUri), 5543);
-        await _server.Start();
-
-        _server.AuthorizationCodeReceived += OnAuthorizationCodeReceived;
-        _server.ErrorReceived += OnErrorReceived;
-
-        var request = new LoginRequest(_server.BaseUri, GetClientIdFromFile(), LoginRequest.ResponseType.Code)
+        // Generates a secure random verifier of length 120 and its challenge
+        var (verifier, challenge) = PKCEUtil.GenerateCodes(120);
+        
+        // Make sure "http://localhost:5189/callback" is in your applications redirect URIs!
+        var loginRequest = new LoginRequest(
+            new Uri(_appDataManager.AppData.RedirectUri),
+            _appDataManager.AppData.ClientId,
+            LoginRequest.ResponseType.Code
+        )
         {
-            Scope = new List<string> { Scopes.UserReadEmail }
+            CodeChallengeMethod = "S256",
+            CodeChallenge = challenge,
+            Scope = [Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative]
         };
-        BrowserUtil.Open(request.ToUri());
+        _appDataManager.AppData.Verifier = verifier;
+        _appDataManager.UpdateJson();
+        var uri = loginRequest.ToUri().ToString();
+        OpenUriInDefaultBrowser(uri);
     }
-
-    private static async Task OnAuthorizationCodeReceived(object sender, AuthorizationCodeResponse response)
+    
+    private static void OpenUriInDefaultBrowser(string uri)
     {
-        await _server.Stop();
+        if (string.IsNullOrWhiteSpace(uri))
+        {
+            Console.WriteLine("Error: URI cannot be null or empty.");
+            return;
+        }
 
-        var config = SpotifyClientConfig.CreateDefault();
-        var tokenResponse = await new OAuthClient(config).RequestToken(
-            new AuthorizationCodeTokenRequest(
-                GetClientIdFromFile(), GetSecretIdFromFile(), response.Code, new Uri(RedirectUri)
-            )
-        );
+        try
+        {
+            Console.WriteLine($"Attempting to open: {uri}");
 
-        await using var sr = new StreamWriter("Backend/access_token");
-        await sr.WriteAsync(tokenResponse.AccessToken);
+            // This is the most common and robust way for .NET Core / .NET 5+
+            // It intelligently handles different operating systems.
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = uri,
+                UseShellExecute = true // Crucial for opening URLs (and files)
+            });
+        }
+        catch (System.ComponentModel.Win32Exception noBrowser)
+        {
+            // This exception occurs if no default browser is set or the URI is malformed.
+            Console.WriteLine($"Error: No default browser or invalid URI. {noBrowser.Message}");
+        }
+        catch (Exception ex)
+        {
+            // Catch any other unexpected errors
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        }
     }
-
-    private static async Task OnErrorReceived(object sender, string error, string state)
+    
+    private static string GetSolutionRootPath()
     {
-        Console.WriteLine($"Aborting authorization, error received: {error}");
-        await _server.Stop();
+        string currentDirectory = AppContext.BaseDirectory;
+        // On monte dans l'arborescence jusqu'à trouver un dossier qui contient un fichier .sln
+        // Ou un marqueur connu de la racine de la solution (ex: un dossier "SharedData")
+        while (!string.IsNullOrEmpty(currentDirectory))
+        {
+            if (Directory.GetFiles(currentDirectory, "*.sln").Any() ||
+                Directory.Exists(Path.Combine(currentDirectory, "SharedData")))
+            {
+                return currentDirectory;
+            }
+            DirectoryInfo parent = Directory.GetParent(currentDirectory);
+            if (parent == null) break; // Sortir si plus de parent
+            currentDirectory = parent.FullName;
+        }
+        // Fallback si la racine de la solution n'est pas trouvée (moins robuste)
+        return Path.Combine(AppContext.BaseDirectory, "../../../../"); // Exemple pour remonter 4 niveaux
     }
 }
