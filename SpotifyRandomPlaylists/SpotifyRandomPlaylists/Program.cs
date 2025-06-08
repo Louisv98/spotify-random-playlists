@@ -20,7 +20,7 @@ public static class Program
                 break;
             }
             case 0:
-                consolePrompt.Start();
+                await consolePrompt.Start();
                 break;
             default:
                 Console.WriteLine("Usage: SpotifyRandomPlaylists [login]");

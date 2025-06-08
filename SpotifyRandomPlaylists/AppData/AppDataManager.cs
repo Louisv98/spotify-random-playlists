@@ -8,7 +8,8 @@ public class AppDataManager
 {
     private readonly string _jsonPath;
     private JsonSerializerOptions _options;
-    public AppData AppData { get; }
+
+    public AppData AppData { get; private init; }
 
     public AppDataManager()
     {
@@ -41,6 +42,7 @@ public class AppDataManager
         AppData.RedirectUri = data.RedirectUri;
         AppData.Verifier = data.Verifier;
         AppData.AccessToken = data.AccessToken;
+        AppData.RefreshToken = data.RefreshToken;
     }
 
     private void InitJsonSerializerOptions()

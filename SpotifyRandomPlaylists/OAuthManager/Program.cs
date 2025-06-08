@@ -15,17 +15,33 @@ app.MapPut("/send-verifier", (string verifier) =>
 
 app.MapGet("/callback", async (string code) =>
 {
-    // Note that we use the verifier calculated above!
-    var initialResponse = await new OAuthClient().RequestToken(
-        new PKCETokenRequest(
-            appDataManager.AppData.ClientId, 
-            code, 
-            new Uri(appDataManager.AppData.RedirectUri), 
-            appDataManager.AppData.Verifier)
-    );
+    if (appDataManager.AppData.AccessToken is null or "")
+    {
+        // Note that we use the verifier calculated above!
+        var initialResponse = await new OAuthClient().RequestToken(
+            new PKCETokenRequest(
+                appDataManager.AppData.ClientId, 
+                code, 
+                new Uri(appDataManager.AppData.RedirectUri), 
+                appDataManager.AppData.Verifier)
+        );
 
-    appDataManager.AppData.AccessToken = initialResponse.AccessToken;
+        appDataManager.AppData.AccessToken = initialResponse.AccessToken;
+        appDataManager.AppData.RefreshToken = initialResponse.RefreshToken;
+    }
+    else
+    {
+        var response = await new OAuthClient().RequestToken(
+            new PKCETokenRefreshRequest(
+                appDataManager.AppData.ClientId,
+                appDataManager.AppData.RefreshToken)
+        );
+        
+        appDataManager.AppData.AccessToken = response.AccessToken;
+    }
     appDataManager.UpdateJson();
 });
+
+app.MapGet("/token", () => appDataManager.AppData.AccessToken);
 
 app.Run();
