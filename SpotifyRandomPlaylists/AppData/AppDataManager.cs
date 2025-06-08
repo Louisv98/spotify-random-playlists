@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using Swan.Formatters;
 
@@ -5,20 +6,24 @@ namespace AppData;
 
 public class AppDataManager
 {
-    private string _jsonPath;
+    private readonly string _jsonPath;
     private JsonSerializerOptions _options;
-    public AppData AppData { get; set; }
+    public AppData AppData { get; }
 
-    public AppDataManager(string solutionRootPath)
+    public AppDataManager()
     {
+        _jsonPath = GetJsonPath();
         AppData = new AppData();
-        Initialize(solutionRootPath);
         InitFromJson();
     }
-    
-    private void Initialize(string solutionRootPath)
+
+    private static string GetJsonPath()
     {
-        _jsonPath = Path.Combine(solutionRootPath, "SharedData", "data.json");
+        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var buildDirectory = Path.GetDirectoryName(assemblyLocation);
+        
+        if (buildDirectory is null) throw new ArgumentNullException(nameof(buildDirectory));
+        return Path.Combine(buildDirectory, "app_data.json");
     }
     
     private void InitFromJson()
@@ -32,6 +37,7 @@ public class AppDataManager
             throw new NullReferenceException("Could not read AppData");
         }
         AppData.ClientId = data.ClientId;
+        AppData.BaseUri = data.BaseUri;
         AppData.RedirectUri = data.RedirectUri;
         AppData.Verifier = data.Verifier;
         AppData.AccessToken = data.AccessToken;

@@ -21,15 +21,9 @@ namespace SpotifyRandomPlaylists.Backend;
 /// </summary>
 public class SpotifyAuth
 {
-    private readonly AppDataManager _appDataManager;
+    private readonly AppDataManager _appDataManager = new();
 
-    public SpotifyAuth()
-    {
-        var solutionRootDir = GetSolutionRootPath();
-        _appDataManager = new AppDataManager(solutionRootDir);
-    }
-
-    public void Login()
+    public async Task Login()
     {
         // Generates a secure random verifier of length 120 and its challenge
         var (verifier, challenge) = PKCEUtil.GenerateCodes(120);
@@ -47,6 +41,14 @@ public class SpotifyAuth
         };
         _appDataManager.AppData.Verifier = verifier;
         _appDataManager.UpdateJson();
+        
+        // Send verifier to local server
+        var httpClient = new HttpClient();
+        var verifierUri = new Uri($"{_appDataManager.AppData.BaseUri}/send-verifier?verifier={verifier}");
+        await httpClient.PutAsync(
+            verifierUri, 
+            null);
+        
         var uri = loginRequest.ToUri().ToString();
         OpenUriInDefaultBrowser(uri);
     }

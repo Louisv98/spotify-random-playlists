@@ -35,10 +35,10 @@ public class ConsolePrompt
         // TODO: Talk to api and create playlist
     }
 
-    public void Login()
+    public static async Task Login()
     {
         var spotifyAuth = new SpotifyAuth();
-        spotifyAuth.Login();
+        await spotifyAuth.Login();
     }
 
     private static T ValidateInput<T>(string promptText)

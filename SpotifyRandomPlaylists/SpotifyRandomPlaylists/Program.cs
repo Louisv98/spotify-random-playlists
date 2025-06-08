@@ -4,7 +4,7 @@ namespace SpotifyRandomPlaylists;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var consolePrompt = new ConsolePrompt();
 
@@ -14,7 +14,7 @@ public static class Program
             {
                 if (args[0] == "login")
                 {
-                    consolePrompt.Login();
+                    await ConsolePrompt.Login();
                 }
 
                 break;
