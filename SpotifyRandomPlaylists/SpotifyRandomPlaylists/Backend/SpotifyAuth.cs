@@ -84,4 +84,13 @@ public class SpotifyAuth
             Console.WriteLine($"An unexpected error occurred: {ex.Message}");
         }
     }
+    
+    public async Task<string> GetAccessToken()
+    {
+        var httpClient = new HttpClient();
+        var uri = new Uri($"{_appDataManager.AppData.BaseUri}/token");
+        var response = await httpClient.GetAsync(uri);
+        var token = await response.Content.ReadAsStringAsync();
+        return token;
+    }
 }

@@ -34,8 +34,11 @@ public class ConsolePrompt
             _playlist.SongNumber = songNumInput;
         }
         
-        // TODO: Talk to api and create playlist
-        await GeneratePlaylist(_playlist);
+        // Talk to api and create playlist
+        var playlistGenerator = new PlaylistGenerator();
+        await playlistGenerator.Generate(_playlist);
+        
+        Console.WriteLine("Playlist generated");
     }
 
     public static async Task Login()
@@ -114,41 +117,5 @@ public class ConsolePrompt
         } while (!validInput);
 
         return value;
-    }
-
-    private async Task<string> GetAccessToken()
-    {
-        var httpClient = new HttpClient();
-        var uri = new Uri($"{_appDataManager.AppData.BaseUri}/token");
-        var response = await httpClient.GetAsync(uri);
-        var token = await response.Content.ReadAsStringAsync();
-        return token;
-    }
-
-    private async Task GeneratePlaylist(Playlist playlist)
-    {
-        var token = await GetAccessToken();
-        if (token is null or "")
-        {
-            Console.WriteLine("No access token provided, Exiting...");
-            Environment.Exit(1);
-        }
-
-        try
-        {
-            var api = new SpotifyClient(token);
-            var res = await api.UserProfile.Current();
-            Console.WriteLine("My email: " + res.Email);
-        }
-        catch (APIException e)
-        {
-            Console.WriteLine(e.Message);
-            Environment.Exit(1);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("An unexpected error occured");
-            Environment.Exit(1);
-        }
     }
 }
